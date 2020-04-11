@@ -1,0 +1,8 @@
+[aws]
+awslinux ansible_host=10.0.8.139
+
+[aws:vars]
+ansible_user=ec2-user
+ansible_ssh_private_key_file=~/.ssh/hackthiscompany.vms.id_rsa
+ansible_python_interpreter=python3
+become=yes
