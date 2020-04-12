@@ -17,15 +17,6 @@
     - dc-9-packages
     - dc-9-packages-install
 
-- name: Install pip dependencies
-  pip:
-    name:
-      - PyMySQL
-  tags:
-    - dc-9
-    - dc-9-packages
-    - dc-9-packages-install
-
 - name: Configure packages
   template:
     src: '{{ pkg.src }}'
