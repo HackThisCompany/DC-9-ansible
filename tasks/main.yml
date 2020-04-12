@@ -1,2 +1,196 @@
 ---
-# tasks file for DC-9
+- name: Install needed packages
+  yum:
+    name:
+      - httpd
+      - php
+      - mod_php
+      - mariadb-server
+      - php-mysql
+      - python3-pip
+      - http://li.nux.ro/download/nux/dextop/el7Server/x86_64/knock-server-0.7-1.el7.nux.x86_64.rpm
+    state: present
+  vars:
+    ansible_python_interpreter: /usr/bin/python
+  tags:
+    - dc-9
+    - dc-9-packages
+    - dc-9-packages-install
+
+- name: Install pip dependencies
+  pip:
+    name:
+      - PyMySQL
+  tags:
+    - dc-9
+    - dc-9-packages
+    - dc-9-packages-install
+
+- name: Configure packages
+  template:
+    src: '{{ pkg.src }}'
+    dest: '{{ pkg.dest }}'
+    owner: '{{ pkg.owner | default("root") }}'
+    group: '{{ pkg.group | default("root") }}'
+    mode: '{{ pkg.mode | default("0644") }}'
+  with_items:
+    - '{{ packageconfigs }}'
+  loop_control:
+    loop_var: pkg
+    label: '{{ pkg.dest }}'
+  tags:
+    - dc-9
+    - dc-9-packages
+    - dc-9-packages-config
+
+- name: Set mariadb localhost address binding
+  ini_file:
+    path: /etc/my.cnf
+    section: mysqld
+    option: bind-address
+    value: '127.0.0.1'
+    state: present
+  tags:
+    - dc-9
+    - dc-9-packages
+    - dc-9-packages-config
+    - dc-9-packages-config-mariadb
+
+- name: Set iptables rules for SSH + PortKnocking
+  iptables:
+    comment: '{{ rule.comment }}'
+    chain: '{{ rule.chain }}'
+    match: '{{ rule.match | default(omit) }}'
+    ctstate: '{{ rule.ctstate | default(omit) }}'
+    protocol: '{{ rule.protocol | default(omit) }}'
+    destination_port: '{{ rule.destination_port | default(omit) }}'
+    reject_with: '{{ rule.reject_with | default(omit) }}'
+    jump: '{{ rule.jump }}'
+  with_items:
+    - {comment: "Allow active connections"  , chain: "INPUT", match: "conntrack", ctstate: "RELATED,ESTABLISHED", jump: "ACCEPT"}
+    - {comment: "Reject new ssh connections", chain: "INPUT", protocol: "tcp",    destination_port: "22",         jump: "REJECT", reject_with: "icmp-port-unreachable"}
+  loop_control:
+    loop_var: rule
+    label: '{{ rule.comment }}'
+  tags:
+    - dc-9
+    - dc-9-packages
+    - dc-9-packages-config
+    - dc-9-packages-config-knockd
+
+- name: Enable and start httpd, mariadb and knockd
+  systemd:
+    name: '{{ service }}'
+    state: restarted
+    enabled: yes
+  with_items:
+    - httpd
+    - mariadb
+    - knockd
+  loop_control:
+    loop_var: service
+  tags:
+    - dc-9
+    - dc-9-packages
+    - dc-9-packages-systemd
+
+- name: Deploy web
+  unarchive:
+    src: html.tar.gz
+    dest: /var/www/html
+    owner: root
+    group: root
+    mode: 'u=rwX,g=rX,o=rX'
+  tags:
+    - dc-9
+    - dc-9-web
+    - dc-9-web-source
+
+- name: Delete anonymous MySQL server user for localhost
+  mysql_user:
+    user: ""
+    state: "absent"
+  tags:
+    - dc-9
+    - dc-9-web
+    - dc-9-web-db
+
+- name: Remove the MySQL test database
+  mysql_db:
+    db: test
+    state: absent
+  tags:
+    - dc-9
+    - dc-9-web
+    - dc-9-web-db
+
+- name: Upload db dump file
+  copy:
+    src: mysqldump.sql.gz
+    dest: /tmp/mysqldump.sql.gz
+  tags:
+    - dc-9
+    - dc-9-web
+    - dc-9-web-db
+
+- name: Dump db file
+  mysql_db:
+    name: all
+    state: import
+    target: /tmp/mysqldump.sql.gz
+  tags:
+    - dc-9
+    - dc-9-web
+    - dc-9-web-db
+
+- name: Remove db dump file
+  file:
+    path: /tmp/mysqldump.sql.gz
+    state: absent
+  tags:
+    - dc-9
+    - dc-9-web
+    - dc-9-web-db
+
+- name: Create dbuser
+  mysql_user:
+    name: dbuser
+    password: password
+    priv: 'Staff.*:ALL,GRANT/users.*:ALL,GRANT'
+    state: present
+  tags:
+    - dc-9
+    - dc-9-web
+    - dc-9-web-db
+
+- name: Create users
+  user:
+    name: '{{ user.name }}'
+    comment: '{{ user.comment }}'
+    password: '{{ user.password }}'
+  with_items:
+    - '{{ users }}'
+  loop_control:
+    loop_var: user
+    label: '{{ user.name }}'
+  tags:
+    - dc-9
+    - dc-9-users
+    - dc-9-users-create
+
+- name: Configure special users
+  include_tasks:
+    file: 'userconfig-{{ user.name }}.yml'
+    apply:
+      tags:
+        - dc-9
+        - dc-9-users
+        - dc-9-users-config
+  with_items:
+    - '{{ users | selectattr("tasksfile","defined") | selectattr("tasksfile","equalto",True) | list }}'
+  loop_control:
+    loop_var: user
+    label: '{{ user.name }}'
+  tags:
+    - always
+

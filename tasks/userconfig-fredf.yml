@@ -1,0 +1,11 @@
+- name: fredf | Add sudoers entry
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^fredf'
+    line: 'fredf   ALL=(root) NOPASSWD: /opt/devstuff/dist/test/test'
+    validate: 'visudo -cf %s'
+  tags:
+    - dc-9-users-config-fredf
+    - dc-9-users-config-fredf-sudoers
+

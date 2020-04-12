@@ -1,0 +1,6 @@
+- name: 'Provide DC-9 server'
+  hosts: dc9
+  become: yes
+  roles:
+    - role: DC-9-ansible
+      vars: []
