@@ -25,6 +25,8 @@ cat << EOF > $TMP/playbook.yml
   connection: local
   roles:
     - role: $TMP/DC-9-ansible
+      vars:
+        ansible_python_interpreter: python3
 EOF
 
 # Run playbook

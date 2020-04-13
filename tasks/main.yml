@@ -1,6 +1,6 @@
 ---
 - name: Install needed packages
-  yum:
+  package:
     name:
       - httpd
       - php
