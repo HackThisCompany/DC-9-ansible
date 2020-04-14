@@ -7,15 +7,17 @@ yum install -y \
   python3 \
   python3-pip \
   git-core
+
+# Download role
+git clone https://github.com/HackThisCompany/DC-9-ansible.git $TMP/DC-9-ansible
 pip3 install -r $TMP/DC-9-ansible/tests/requirements.txt
 
 # Prepare virtualenv & activate
 python3 -m venv $TMP/venv
 . $TMP/venv/bin/activate
 
-# Install ansible , download role and install requirements
+# Install ansible and install requirements
 pip3 install ansible
-git clone https://github.com/HackThisCompany/DC-9-ansible.git $TMP/DC-9-ansible
 pip3 install -r $TMP/DC-9-ansible/tests/requirements.txt
 
 # Prepare playbook
