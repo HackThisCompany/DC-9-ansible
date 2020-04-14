@@ -185,3 +185,22 @@
   tags:
     - always
 
+- name: Allow ssh user password auth
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication yes'
+  tags:
+    - dc-9
+    - dc-9-users
+    - dc-9-users-ssh
+
+- name: Reload ssh
+  systemd:
+    name: sshd
+    state: reloaded
+    enabled: yes
+  tags:
+    - dc-9
+    - dc-9-users
+    - dc-9-users-ssh

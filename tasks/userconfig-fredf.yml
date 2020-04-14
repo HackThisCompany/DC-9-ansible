@@ -3,9 +3,25 @@
     dest: /etc/sudoers
     state: present
     regexp: '^fredf'
-    line: 'fredf   ALL=(root) NOPASSWD: /opt/devstuff/dist/test/test'
+    line: 'fredf   ALL=(root) NOPASSWD: /opt/devstuff/dist/test'
     validate: 'visudo -cf %s'
   tags:
     - dc-9-users-config-fredf
     - dc-9-users-config-fredf-sudoers
 
+- name: fredf | Upload test.py
+  copy:
+    src: test.py
+    dest: /opt/devstuff/test.py
+  tags:
+    - dc-9-users-config-fredf
+    - dc-9-users-config-fredf-devstuff
+
+- name: fredf | Generate devstuff
+  shell: |
+    pip3 install pyinstaller
+    cd /opt/devstuff/
+    /usr/local/bin/pyinstaller --onefile test.py
+  tags:
+    - dc-9-users-config-fredf
+    - dc-9-users-config-fredf-devstuff

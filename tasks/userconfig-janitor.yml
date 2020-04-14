@@ -10,15 +10,3 @@
     - dc-9-users-config-janitor-unarchive
     - dc-9-users-config-janitor-unarchive-home
 
-- name: janitor | Unarchive opt data
-  unarchive:
-    src: opt.tar.gz
-    dest: /opt
-    owner: root
-    group: root
-    mode: 'u=rwX,g=rX,o=rX'
-  tags:
-    - dc-9-users-config
-    - dc-9-users-config-janitor
-    - dc-9-users-config-janitor-unarchive
-    - dc-9-users-config-janitor-unarchive-opt
