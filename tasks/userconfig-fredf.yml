@@ -9,10 +9,24 @@
     - dc-9-users-config-fredf
     - dc-9-users-config-fredf-sudoers
 
+- name: Ensures /opt/devstuff/ dir exists
+  file:
+    path: /opt/devstuff/
+    state: directory
+    owner: root
+    group: root
+    mode: 'u=rwX,g=rX,o=rX'
+  tags:
+    - dc-9-users-config-fredf
+    - dc-9-users-config-fredf-devstuff
+
 - name: fredf | Upload test.py
   copy:
     src: test.py
     dest: /opt/devstuff/test.py
+    owner: root
+    group: root
+    mode: '0644'
   tags:
     - dc-9-users-config-fredf
     - dc-9-users-config-fredf-devstuff

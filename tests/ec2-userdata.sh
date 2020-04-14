@@ -7,6 +7,7 @@ yum install -y \
   python3 \
   python3-pip \
   git-core
+pip3 install -r $TMP/DC-9-ansible/tests/requirements.txt
 
 # Prepare virtualenv & activate
 python3 -m venv $TMP/venv
