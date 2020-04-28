@@ -8,6 +8,7 @@
       - mariadb-server
       - php-mysql
       - python3-pip
+      - iptables-services
       - http://li.nux.ro/download/nux/dextop/el7Server/x86_64/knock-server-0.7-1.el7.nux.x86_64.rpm
     state: present
   vars:
@@ -63,6 +64,9 @@
   loop_control:
     loop_var: rule
     label: '{{ rule.comment }}'
+  notify:
+    - Save iptables rules
+    - Restart iptables
   tags:
     - dc-9
     - dc-9-packages

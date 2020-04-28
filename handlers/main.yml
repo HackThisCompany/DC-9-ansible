@@ -1,2 +1,14 @@
 ---
 # handlers file for DC-9
+- name: Save iptables rules
+  shell: iptables-save > /etc/sysconfig/iptables
+  tags:
+    - always
+
+- name: Restart iptables
+  systemd:
+    name: iptables
+    state: started
+    enabled: yes
+  tags:
+    - always
