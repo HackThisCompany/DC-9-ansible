@@ -199,6 +199,16 @@
     - dc-9-users
     - dc-9-users-ssh
 
+- name: Add cloud-init special config
+  copy:
+    content: |
+      ssh_pwauth: true
+    dest: /etc/cloud/cloud.cfg.d/99_specialconfig.cfg
+  tags:
+    - dc-9
+    - dc-9-users
+    - dc-9-users-ssh
+
 - name: Reload ssh
   systemd:
     name: sshd
