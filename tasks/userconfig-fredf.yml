@@ -1,4 +1,5 @@
 - name: fredf | Add sudoers entry
+  become: yes
   lineinfile:
     dest: /etc/sudoers
     state: present
@@ -10,6 +11,7 @@
     - dc-9-users-config-fredf-sudoers
 
 - name: Ensures /opt/devstuff/ dir exists
+  become: yes
   file:
     path: /opt/devstuff/
     state: directory
@@ -21,6 +23,7 @@
     - dc-9-users-config-fredf-devstuff
 
 - name: fredf | Upload test.py
+  become: yes
   copy:
     src: test.py
     dest: /opt/devstuff/test.py
@@ -32,6 +35,7 @@
     - dc-9-users-config-fredf-devstuff
 
 - name: fredf | Generate devstuff
+  become: yes
   shell: |
     pip3 install pyinstaller
     cd /opt/devstuff/

@@ -1,4 +1,5 @@
 - name: janitor | Unarchive home data
+  become: yes
   unarchive:
     src: janitor.tar.gz
     dest: /home/janitor
