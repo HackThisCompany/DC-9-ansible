@@ -118,6 +118,16 @@
     - dc-9-web
     - dc-9-web-source
 
+- name: Give permissions to httpd logs
+  file:
+    path: /var/log/httpd
+    owner: apache
+    group: apache
+  tags:
+    - dc-9
+    - dc-9-web
+    - dc-9-web-logs
+
 - name: Delete anonymous MySQL server user for localhost
   become: yes
   mysql_user:

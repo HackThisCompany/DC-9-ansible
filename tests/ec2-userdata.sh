@@ -9,7 +9,7 @@ yum install -y \
   git-core
 
 # Download role
-git clone https://github.com/HackThisCompany/DC-9-ansible.git $TMP/DC-9-ansible
+git clone -b htc https://github.com/HackThisCompany/DC-9-ansible.git $TMP/DC-9-ansible
 pip3 install -r $TMP/DC-9-ansible/tests/requirements.txt
 
 # Prepare virtualenv & activate
