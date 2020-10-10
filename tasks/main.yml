@@ -119,10 +119,12 @@
     - dc-9-web-source
 
 - name: Give permissions to httpd logs
+  become: yes
   file:
     path: /var/log/httpd
     owner: apache
     group: apache
+  when: use_htc_version
   tags:
     - dc-9
     - dc-9-web
