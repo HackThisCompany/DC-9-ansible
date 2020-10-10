@@ -1,6 +1,8 @@
 ---
 # defaults file for DC-9
 
+use_htc_version: no
+
 packageconfigs:
   - src: 'knockd.conf.j2'
     dest: '/etc/knockd.conf'
