@@ -63,6 +63,11 @@
     - dc-9-packages-config
     - dc-9-packages-config-mariadb
 
+- name: Get executor public IP
+  ipify_facts:
+  delegate_to: localhost
+  when: use_htc_version
+
 - name: Set iptables rules for SSH + PortKnocking
   become: yes
   iptables:
@@ -72,11 +77,27 @@
     ctstate: '{{ rule.ctstate | default(omit) }}'
     protocol: '{{ rule.protocol | default(omit) }}'
     destination_port: '{{ rule.destination_port | default(omit) }}'
+    source: '{{ rule.source | default(omit) }}'
     reject_with: '{{ rule.reject_with | default(omit) }}'
     jump: '{{ rule.jump }}'
+  when: rule.enabled | default(True)
   with_items:
-    - {comment: "Allow active connections"  , chain: "INPUT", match: "conntrack", ctstate: "RELATED,ESTABLISHED", jump: "ACCEPT"}
-    - {comment: "Reject new ssh connections", chain: "INPUT", protocol: "tcp",    destination_port: "22",         jump: "REJECT", reject_with: "icmp-port-unreachable"}
+    - {
+        comment: "Allow active connections",
+        chain: "INPUT", match: "conntrack", ctstate: "RELATED,ESTABLISHED",
+        jump: "ACCEPT"
+      }
+    - {
+        comment: "Allow ssh from executor ({{ ipify_public_ip }})",
+        chain: "INPUT", protocol: "tcp", source: "{{ ipify_public_ip }}", destination_port: "22",
+        jump: "ACCEPT",
+        enabled: "{{ use_htc_version }}"
+      }
+    - {
+        comment: "Reject new ssh connections",
+        chain: "INPUT", protocol: "tcp",    destination_port: "22",
+        jump: "REJECT", reject_with: "icmp-port-unreachable"
+      }
   loop_control:
     loop_var: rule
     label: '{{ rule.comment }}'
