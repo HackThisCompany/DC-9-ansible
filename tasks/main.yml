@@ -1,5 +1,6 @@
 ---
 - name: Install needed packages
+  become: yes
   package:
     name:
       - httpd
